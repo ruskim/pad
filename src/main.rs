@@ -10,16 +10,20 @@ fn build_piece(c: Vec<Vec<i8>>) -> Piece {
     }
 }
 
-fn print_piece(p: Piece) {
-    for r in p.cells {
-        for c in r {
-            print!("{}", c);
+impl Piece {
+    fn print_piece(&mut self) {
+        for r in &self.cells {
+            for c in r {
+                print!("{}", c);
+            }
+            println!("");
         }
-        println!("");
+        self.cells[0].push(1);
     }
 }
 
 fn main() {
-    let p = build_piece(vec![vec![0,1], vec![0,1]]);
-    print_piece(p);
+    let mut p = build_piece(vec![vec![0,1], vec![0,1]]);
+    p.print_piece();
+    p.print_piece();
 }
