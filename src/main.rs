@@ -197,7 +197,7 @@ fn build_piece_set() -> PieceSet {
             vec![1,0],
             vec![1,0]
             ]);
-    classes.push(build_piece_class(p, 0));
+    classes.push(build_piece_class(p, 1));
 
     p = build_piece(
         vec![
@@ -206,7 +206,7 @@ fn build_piece_set() -> PieceSet {
             vec![1,0],
             vec![1,0]
             ]);
-    classes.push(build_piece_class(p, 1));
+    classes.push(build_piece_class(p, 2));
     
     p = build_piece(
         vec![
@@ -214,7 +214,7 @@ fn build_piece_set() -> PieceSet {
             vec![1,0],
             vec![1,1],
             ]);
-    classes.push(build_piece_class(p, 2));
+    classes.push(build_piece_class(p, 3));
     
     p = build_piece(
         vec![
@@ -222,7 +222,7 @@ fn build_piece_set() -> PieceSet {
             vec![0,1,0],
             vec![0,1,1],
             ]);
-    classes.push(build_piece_class(p, 3));
+    classes.push(build_piece_class(p, 4));
 
     p = build_piece(
         vec![
@@ -230,7 +230,7 @@ fn build_piece_set() -> PieceSet {
             vec![1,1],
             vec![1,1],
             ]);
-    classes.push(build_piece_class(p, 4));
+    classes.push(build_piece_class(p, 5));
     
     p = build_piece(
         vec![
@@ -238,7 +238,7 @@ fn build_piece_set() -> PieceSet {
             vec![1,0,0],
             vec![1,1,1],
             ]);
-    classes.push(build_piece_class(p, 5));
+    classes.push(build_piece_class(p, 6));
     
     p = build_piece(
         vec![
@@ -247,7 +247,7 @@ fn build_piece_set() -> PieceSet {
             vec![0,1],
             vec![0,1]
             ]);
-    classes.push(build_piece_class(p, 6));
+    classes.push(build_piece_class(p, 7));
     
     p = build_piece(
         vec![
@@ -255,7 +255,7 @@ fn build_piece_set() -> PieceSet {
             vec![1,1],
             vec![1,1],
             ]);
-    classes.push(build_piece_class(p, 7));
+    classes.push(build_piece_class(p, 8));
 
     PieceSet {
         classes: classes,
@@ -270,13 +270,32 @@ impl PieceSet {
         }
     }
 }
+
+fn initial_state() -> i64 {
+    let mut mask: i64 = 0;
+    mask = set_bit(mask, 6, 0);
+    mask = set_bit(mask, 6, 1);
+
+    mask = set_bit(mask, 3,6);
+    mask = set_bit(mask, 4,6);
+    mask = set_bit(mask, 5,6);
+    mask = set_bit(mask, 6,6);
+
+    //23 Feb
+    mask = set_bit(mask, 1,5);
+
+    return mask;
+}
+
+
 fn main() {
 //    let p = build_piece(vec![vec![1,1,0], vec![0,1,0],vec![0,1,1]]);
 //    let p = build_piece(vec![vec![1,0], vec![1,1],vec![1,0],vec![1,0]]);
-//    println!("flags: {:#b}", p.to_bitmask(0, 0));
 //    let c = build_piece_class(p,0);
 //    c.print();
     let ps = build_piece_set();
     ps.print();
 
+    let state = initial_state();
+    println!("{:b}", state);
 }
