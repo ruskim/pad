@@ -80,7 +80,7 @@ impl PieceClass {
 }
 
 fn set_bit(bitmask: i64, x: i8, y: i8) -> i64{
-    let pos = x + y*6;
+    let pos = x + y*7;
     return  bitmask | (1<<pos); 
 }
 
@@ -162,11 +162,11 @@ impl Piece {
         let sx = self.cells[0].len() as i8;
         let sy = self.cells.len() as i8;
 
-        if sx + x > 6 {
+        if sx + x > 7 {
             return -1;
         }
 
-        if sy  + y > 6 {
+        if sy  + y > 7 {
             return -1;
         }
         let mut bitmask: i64 = 0;
@@ -269,6 +269,51 @@ impl PieceSet {
             pc.print();
         }
     }
+
+    fn iterate(&self, class: i8, state: i64, finish: i64) -> bool {
+        if (class as usize) > self.classes.len() {
+            return false;
+        }
+
+        for piece in &self.classes[class as usize].pieces {
+            for x in (0..7) {
+                for y in (0..7) {
+                    let mask = piece.to_bitmask(x, y);
+                    if mask < 0 {
+                        continue;
+                    }
+                    if mask & state != 0 {
+                        continue;
+                    }
+                    //println!("{:#049b} {:#049b}", mask, state);
+                    println!("{:#049b}", mask);
+                    let new_state = mask | state;
+                    if new_state == finish {
+                        println!("Solution found!");
+                        piece.print();
+                        println!("at {}:{}", x, y);
+                        return true;
+                    }
+                    if self.iterate(class+1, new_state, finish) {
+                        piece.print();
+                        println!("at {}:{}", x, y);
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+
+    }
+
+    fn solve(&self, state: i64, finish: i64) {
+        if self.iterate(0, state, finish) {
+            println!("found");
+        } else {
+            println!("not found");
+        }
+    }
 }
 
 fn initial_state() -> i64 {
@@ -282,9 +327,14 @@ fn initial_state() -> i64 {
     mask = set_bit(mask, 6,6);
 
     //23 Feb
+    mask = set_bit(mask, 1,0);
     mask = set_bit(mask, 1,5);
 
     return mask;
+}
+
+fn final_state() -> i64 {
+    return i64::pow(2, 49) - 1;
 }
 
 
@@ -297,5 +347,8 @@ fn main() {
     ps.print();
 
     let state = initial_state();
-    println!("{:b}", state);
+    let finish = final_state();
+    println!("from {:b} to {:b}", state, finish);
+
+    ps.solve(state,finish)
 }
