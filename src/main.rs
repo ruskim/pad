@@ -58,6 +58,31 @@ impl Piece {
         }
         build_piece(cells)
     }
+
+    fn equal(&self, p: &Piece) -> bool {
+        if self.cells.len() != p.cells.len() {
+            return false;
+        }
+
+        if self.cells[0].len() != p.cells[0].len() {
+            return false;
+        }
+
+        let mut i = 0;
+
+        while i < self.cells.len() {
+            let mut j = 0;
+            while j < self.cells[0].len() {
+                if self.cells[i][j] != p.cells[i][j] {
+                    return false;
+                }
+                j += 1;
+            }
+            i += 1;
+        }
+        return true;
+    }
+
 }
 
 fn main() {
@@ -69,7 +94,11 @@ fn main() {
 
     p.print();
     p2.print();
+    println!("{}", p.equal(&p2));
     p3.print();
+    println!("{}", p.equal(&p3));
     p4.print();
+    println!("{}", p.equal(&p4));
     pf.print();
+    println!("{}", p.equal(&pf));
 }
