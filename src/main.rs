@@ -1,5 +1,3 @@
-// use std::vec;
-
 struct Piece {
     cells: Vec<Vec<i8>>,
 }
@@ -276,8 +274,6 @@ impl PieceSet {
                     if mask & state != 0 {
                         continue;
                     }
-                    //println!("{:#049b} {:#049b}", mask, state);
-                    //println!("{:#049b}", mask);
                     let new_state = mask | state;
                     if new_state == finish {
                         println!("Solution found!");
@@ -330,12 +326,7 @@ fn final_state() -> i64 {
 
 
 fn main() {
-//    let p = build_piece(vec![vec![1,1,0], vec![0,1,0],vec![0,1,1]]);
-//    let p = build_piece(vec![vec![1,0], vec![1,1],vec![1,0],vec![1,0]]);
-//    let c = build_piece_class(p,0);
-//    c.print();
     let ps = build_piece_set();
-//    ps.print();
 
     let state = initial_state();
     let finish = final_state();
