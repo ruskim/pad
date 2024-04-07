@@ -142,17 +142,12 @@ impl Piece {
             return false;
         }
 
-        let mut i = 0;
-
-        while i < self.cells.len() {
-            let mut j = 0;
-            while j < self.cells[0].len() {
+        for i in 0..self.cells.len() {
+            for j in 0..self.cells[0].len() {
                 if self.cells[i][j] != p.cells[i][j] {
                     return false;
                 }
-                j += 1;
             }
-            i += 1;
         }
         return true;
     }
@@ -170,16 +165,12 @@ impl Piece {
             return -1;
         }
         let mut bitmask: i64 = 0;
-        let mut i: i8 = 0;
-        while i < sy {
-            let mut j: i8 = 0;
-            while j < sx {
+        for i in 0..sy {
+            for j in  0..sx {
                 if self.cells[i as usize][j as usize] != 0 {
                     bitmask = set_bit(bitmask, j+x, y+i);
                 }
-                j += 1;
             }
-            i += 1;
         }
 
         return bitmask;
@@ -276,8 +267,8 @@ impl PieceSet {
         }
 
         for piece in &self.classes[class as usize].pieces {
-            for x in (0..7) {
-                for y in (0..7) {
+            for x in 0..7 {
+                for y in 0..7 {
                     let mask = piece.to_bitmask(x, y);
                     if mask < 0 {
                         continue;
@@ -286,17 +277,17 @@ impl PieceSet {
                         continue;
                     }
                     //println!("{:#049b} {:#049b}", mask, state);
-                    println!("{:#049b}", mask);
+                    //println!("{:#049b}", mask);
                     let new_state = mask | state;
                     if new_state == finish {
                         println!("Solution found!");
-                        piece.print();
                         println!("at {}:{}", x, y);
+                        piece.print();
                         return true;
                     }
                     if self.iterate(class+1, new_state, finish) {
-                        piece.print();
                         println!("at {}:{}", x, y);
+                        piece.print();
                         return true;
                     }
                 }
@@ -344,7 +335,7 @@ fn main() {
 //    let c = build_piece_class(p,0);
 //    c.print();
     let ps = build_piece_set();
-    ps.print();
+//    ps.print();
 
     let state = initial_state();
     let finish = final_state();
