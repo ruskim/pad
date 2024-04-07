@@ -72,6 +72,11 @@ impl PieceClass {
     }
 }
 
+fn set_bit(bitmask: i64, x: i8, y: i8) -> i64{
+    let pos = x + y*6;
+    return  bitmask | (1<<pos); 
+}
+
 impl Piece {
     fn print(&self) {
         for r in &self.cells {
@@ -145,10 +150,41 @@ impl Piece {
         return true;
     }
 
+    fn to_bitmask(&self, x: i8, y: i8) -> i64 {
+
+        let sx = self.cells[0].len() as i8;
+        let sy = self.cells.len() as i8;
+
+        if sx + x > 6 {
+            return -1;
+        }
+
+        if sy  + y > 6 {
+            return -1;
+        }
+        let mut bitmask: i64 = 0;
+        let mut i: i8 = 0;
+        while i < sy {
+            let mut j: i8 = 0;
+            while j < sx {
+                if self.cells[i as usize][j as usize] != 0 {
+                    bitmask = set_bit(bitmask, j+x, y+i);
+                }
+                j += 1;
+            }
+            i += 1;
+        }
+
+        return bitmask;
+    }
+
 }
 
 fn main() {
-    let p = build_piece(vec![vec![1,1,0], vec![0,1,0],vec![0,1,1]]);
+//    let p = build_piece(vec![vec![1,1,0], vec![0,1,0],vec![0,1,1]]);
+    let p = build_piece(vec![vec![1,0], vec![1,1],vec![1,0],vec![1,0]]);
+    println!("flags: {:#b}", p.to_bitmask(0, 0));
     let c = build_piece_class(p);
     c.print();
+
 }
