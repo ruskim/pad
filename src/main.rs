@@ -18,6 +18,7 @@ impl Piece {
             }
             println!("");
         }
+        println!("");
     }
     
     fn rotate(&self) -> Piece {
@@ -43,15 +44,32 @@ impl Piece {
 
         build_piece(cells)
     }
+
+    fn flip(&self) -> Piece {
+        let mut cells: Vec<Vec<i8>> =  Vec::new();
+        let mut i = self.cells.len()-1;
+
+        loop {
+            cells.push(self.cells[i].clone());
+            if i ==0 {
+                break;
+            }
+            i -= 1;
+        }
+        build_piece(cells)
+    }
 }
 
 fn main() {
-    let p = build_piece(vec![vec![0,1], vec![0,1]]);
+    let p = build_piece(vec![vec![1,1,0], vec![0,1,0],vec![0,1,1]]);
     let p2 = p.rotate();
     let p3 = p2.rotate();
     let p4 = p3.rotate();
+    let pf = p.flip();
+
     p.print();
     p2.print();
     p3.print();
     p4.print();
+    pf.print();
 }
