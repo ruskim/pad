@@ -6,6 +6,11 @@ struct Piece {
 
 struct PieceClass {
     pieces: Vec<Piece>,
+    id: i8,
+}
+
+struct PieceSet {
+    classes: Vec<PieceClass>,
 }
 
 fn build_piece(c: Vec<Vec<i8>>) -> Piece {
@@ -23,7 +28,7 @@ fn has_piece( ps: &Vec<Piece>, p: &Piece) -> bool {
     false
 }
 
-fn build_piece_class(p: Piece) ->PieceClass {
+fn build_piece_class(p: Piece, id: i8) ->PieceClass {
         let mut pieces: Vec<Piece> =  Vec::new();
 
         let p1 = p.rotate();
@@ -60,12 +65,14 @@ fn build_piece_class(p: Piece) ->PieceClass {
 
         PieceClass {
             pieces: pieces,
+            id: id,
         }
 
 }
 
 impl PieceClass {
     fn print(&self) {
+        println!("PieceClass: {}", self.id);
         for r in &self.pieces {
             r.print();
         }
@@ -180,11 +187,96 @@ impl Piece {
 
 }
 
+fn build_piece_set() -> PieceSet {
+    let mut classes: Vec<PieceClass> =  Vec::new();
+
+    let mut p = build_piece(
+        vec![
+            vec![1,0],
+            vec![1,1],
+            vec![1,0],
+            vec![1,0]
+            ]);
+    classes.push(build_piece_class(p, 0));
+
+    p = build_piece(
+        vec![
+            vec![1,1],
+            vec![1,0],
+            vec![1,0],
+            vec![1,0]
+            ]);
+    classes.push(build_piece_class(p, 1));
+    
+    p = build_piece(
+        vec![
+            vec![1,1],
+            vec![1,0],
+            vec![1,1],
+            ]);
+    classes.push(build_piece_class(p, 2));
+    
+    p = build_piece(
+        vec![
+            vec![1,1,0],
+            vec![0,1,0],
+            vec![0,1,1],
+            ]);
+    classes.push(build_piece_class(p, 3));
+
+    p = build_piece(
+        vec![
+            vec![1,1],
+            vec![1,1],
+            vec![1,1],
+            ]);
+    classes.push(build_piece_class(p, 4));
+    
+    p = build_piece(
+        vec![
+            vec![1,0,0],
+            vec![1,0,0],
+            vec![1,1,1],
+            ]);
+    classes.push(build_piece_class(p, 5));
+    
+    p = build_piece(
+        vec![
+            vec![1,0],
+            vec![1,1],
+            vec![0,1],
+            vec![0,1]
+            ]);
+    classes.push(build_piece_class(p, 6));
+    
+    p = build_piece(
+        vec![
+            vec![1,0],
+            vec![1,1],
+            vec![1,1],
+            ]);
+    classes.push(build_piece_class(p, 7));
+
+    PieceSet {
+        classes: classes,
+    }
+
+}
+
+impl PieceSet {
+    fn print(&self) {
+        for pc in &self.classes {
+            pc.print();
+        }
+    }
+}
 fn main() {
 //    let p = build_piece(vec![vec![1,1,0], vec![0,1,0],vec![0,1,1]]);
-    let p = build_piece(vec![vec![1,0], vec![1,1],vec![1,0],vec![1,0]]);
-    println!("flags: {:#b}", p.to_bitmask(0, 0));
-    let c = build_piece_class(p);
-    c.print();
+//    let p = build_piece(vec![vec![1,0], vec![1,1],vec![1,0],vec![1,0]]);
+//    println!("flags: {:#b}", p.to_bitmask(0, 0));
+//    let c = build_piece_class(p,0);
+//    c.print();
+    let ps = build_piece_set();
+    ps.print();
 
 }
