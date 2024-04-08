@@ -1,3 +1,5 @@
+use colored::{ColoredString, Colorize};
+
 struct Piece {
     cells: Vec<Vec<i8>>,
 }
@@ -5,6 +7,13 @@ struct Piece {
 struct PieceClass {
     pieces: Vec<Piece>,
     id: i8,
+}
+
+struct PiecePosition {
+    x: i8,
+    y: i8,
+    class: i8,
+    form: i8,
 }
 
 struct PieceSet {
@@ -117,14 +126,9 @@ impl Piece {
 
     fn flip(&self) -> Piece {
         let mut cells: Vec<Vec<i8>> =  Vec::new();
-        let mut i = self.cells.len()-1;
 
-        loop {
+        for i in (0..self.cells.len()).rev() {
             cells.push(self.cells[i].clone());
-            if i ==0 {
-                break;
-            }
-            i -= 1;
         }
         build_piece(cells)
     }
@@ -257,12 +261,12 @@ impl PieceSet {
         }
     }
 
-    fn iterate(&self, class: i8, state: i64, finish: i64) -> bool {
+    fn iterate(&self, class: i8, state: i64, finish: i64, solution: &mut Vec<PiecePosition>) -> bool {
         if (class as usize) > self.classes.len() {
             return false;
         }
 
-        for piece in &self.classes[class as usize].pieces {
+        for (i, piece) in self.classes[class as usize].pieces.iter().enumerate() {
             for x in 0..7 {
                 for y in 0..7 {
                     let mask = piece.to_bitmask(x, y);
@@ -277,11 +281,25 @@ impl PieceSet {
                         println!("Solution found!");
                         println!("at {}:{}", x, y);
                         piece.print();
+                        solution.push(
+                            PiecePosition{
+                                x: x, 
+                                y: y, 
+                                class: class,
+                                form: i as i8,
+                            });
                         return true;
                     }
-                    if self.iterate(class+1, new_state, finish) {
+                    if self.iterate(class+1, new_state, finish, solution) {
                         println!("at {}:{}", x, y);
                         piece.print();
+                        solution.push(
+                            PiecePosition{
+                                x: x, 
+                                y: y, 
+                                class: class,
+                                form: i as i8,
+                            });
                         return true;
                     }
                 }
@@ -293,11 +311,52 @@ impl PieceSet {
     }
 
     fn solve(&self, state: i64, finish: i64) {
-        if self.iterate(0, state, finish) {
-            println!("found");
+        let mut solution: Vec<PiecePosition> = Vec::new();
+
+        if self.iterate(0, state, finish, &mut solution) {
+
+            let blocks = [
+                "\u{2588}".black(),
+                "\u{2588}".blue(),
+                "\u{2588}".red(),
+                "\u{2588}".yellow(),
+                "\u{2588}".green(),
+                "\u{2588}".magenta(),
+                "\u{2588}".cyan(),
+                "\u{2588}".purple(),
+                "\u{2588}".bright_black(),
+                "\u{2588}".bright_blue(),
+                ];
+
+            let mut array_2d = [[0; 7]; 7];
+//            let mut astr = [["   ".black(); 7]; 7];
+            
+            for p in &solution {
+                let cls = &self.classes[p.class as usize];
+                let f = &cls.pieces[p.form as usize];
+                for (i, v) in f.cells.iter().enumerate() {
+                    for (j, c) in v.iter().enumerate() {
+                        if *c != 0 {
+                            array_2d[i+(p.y as usize)][j+(p.x as usize)] = cls.id;
+                        }
+                    }
+                }
+                println!("position: c:{}, p:{}, x:{}, y:{}", p.class, p.form, p.x, p.y);
+            }
+
+            println!("");
+            for i in 0..array_2d.len() {
+                for j in 0..array_2d[i].len() {
+                    let b = &blocks[array_2d[i][j] as usize];
+                    print!("{}{}{}", b, b, b); 
+                }
+                println!("");
+            }
+            println!("");
         } else {
             println!("not found");
         }
+
     }
 }
 
@@ -325,6 +384,7 @@ fn final_state() -> i64 {
 
 fn main() {
     let ps = build_piece_set();
+    ps.print();
 
     let state = initial_state();
     let finish = final_state();
