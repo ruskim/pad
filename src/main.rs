@@ -108,10 +108,8 @@ impl Piece {
             i += 1;
         };
 
-        i = 0;
-        while i<cells.len() {
+        for i in 0..cells.len() {
             cells[i].reverse();
-            i += 1;
         }
 
         build_piece(cells)
