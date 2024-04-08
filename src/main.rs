@@ -1,4 +1,7 @@
-use colored::{ColoredString, Colorize};
+use colored::Colorize;
+
+use rand::seq::SliceRandom;
+use rand::thread_rng;
 
 struct Piece {
     cells: Vec<Vec<i8>>,
@@ -69,6 +72,9 @@ fn build_piece_class(p: Piece, id: i8) ->PieceClass {
         if !has_piece(&pieces, &pf3) {
             pieces.push(pf3)
         }
+
+        let mut rng = thread_rng();
+        pieces.shuffle(&mut rng);
 
         PieceClass {
             pieces: pieces,
@@ -248,6 +254,9 @@ fn build_piece_set() -> PieceSet {
             ]);
     classes.push(build_piece_class(p, 8));
 
+    let mut rng = thread_rng();
+    classes.shuffle(&mut rng);
+
     PieceSet {
         classes: classes,
     }
@@ -366,6 +375,9 @@ impl PieceSet {
                             }
                             continue;
                         }
+                        //let p = "\u{25CD}";
+                        //print!(" {} ", p);
+                        //continue;
                     }
                     let b = &blocks[c as usize];
                     print!("{}{}{}", b, b, b);
