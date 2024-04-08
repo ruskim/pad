@@ -183,29 +183,21 @@ fn build_piece_set() -> PieceSet {
 
     let mut p = build_piece(
         vec![
-            vec![1,0],
-            vec![1,1],
-            vec![1,0],
-            vec![1,0]
-            ]);
-    classes.push(build_piece_class(p, 1));
-
-    p = build_piece(
-        vec![
             vec![1,1],
             vec![1,0],
             vec![1,0],
             vec![1,0]
             ]);
     classes.push(build_piece_class(p, 2));
-    
+
     p = build_piece(
         vec![
-            vec![1,1],
             vec![1,0],
             vec![1,1],
+            vec![1,0],
+            vec![1,0]
             ]);
-    classes.push(build_piece_class(p, 3));
+    classes.push(build_piece_class(p, 1));
     
     p = build_piece(
         vec![
@@ -214,6 +206,14 @@ fn build_piece_set() -> PieceSet {
             vec![0,1,1],
             ]);
     classes.push(build_piece_class(p, 4));
+    
+    p = build_piece(
+        vec![
+            vec![1,1],
+            vec![1,0],
+            vec![1,1],
+            ]);
+    classes.push(build_piece_class(p, 3));
 
     p = build_piece(
         vec![
@@ -278,9 +278,9 @@ impl PieceSet {
                     }
                     let new_state = mask | state;
                     if new_state == finish {
-                        println!("Solution found!");
-                        println!("at {}:{}", x, y);
-                        piece.print();
+//                        println!("Solution found!");
+//                        println!("at {}:{}", x, y);
+//                        piece.print();
                         solution.push(
                             PiecePosition{
                                 x: x, 
@@ -291,8 +291,8 @@ impl PieceSet {
                         return true;
                     }
                     if self.iterate(class+1, new_state, finish, solution) {
-                        println!("at {}:{}", x, y);
-                        piece.print();
+//                        println!("at {}:{}", x, y);
+//                        piece.print();
                         solution.push(
                             PiecePosition{
                                 x: x, 
@@ -328,8 +328,11 @@ impl PieceSet {
                 "\u{2588}".bright_blue(),
                 ];
 
+            let months = [
+                "Jan", "Feb", "Mar", "Apr", "May", "Jun", 
+                "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
             let mut array_2d = [[0; 7]; 7];
-//            let mut astr = [["   ".black(); 7]; 7];
             
             for p in &solution {
                 let cls = &self.classes[p.class as usize];
@@ -341,14 +344,31 @@ impl PieceSet {
                         }
                     }
                 }
-                println!("position: c:{}, p:{}, x:{}, y:{}", p.class, p.form, p.x, p.y);
+//                println!("position: c:{}, p:{}, x:{}, y:{}", p.class, p.form, p.x, p.y);
             }
 
             println!("");
             for i in 0..array_2d.len() {
                 for j in 0..array_2d[i].len() {
-                    let b = &blocks[array_2d[i][j] as usize];
-                    print!("{}{}{}", b, b, b); 
+                    let c = array_2d[i][j];
+                    if c == 0 {
+                        if (i == 0 || i == 1) && j < 6 {
+                            print!("{}", months[6*i+j as usize]);
+                            continue;
+                        }
+                        if ((i >= 2) && (i <= 5)) || ((i == 6) && (j <= 2)) {
+                            let d = (i-2)*7 + j + 1;
+                            if d < 10 {
+                                print!("{:>2} ", d);
+
+                            } else {
+                                print!("{:>3}", d);
+                            }
+                            continue;
+                        }
+                    }
+                    let b = &blocks[c as usize];
+                    print!("{}{}{}", b, b, b);
                 }
                 println!("");
             }
@@ -373,6 +393,12 @@ fn initial_state() -> i64 {
     //23 Feb
     mask = set_bit(mask, 1,0);
     mask = set_bit(mask, 1,5);
+    
+    //mask = set_bit(mask, 3,0);
+    //mask = set_bit(mask, 6,4);
+    
+    //mask = set_bit(mask, 0,0);
+    //mask = set_bit(mask, 0,2);
 
     return mask;
 }
@@ -384,11 +410,11 @@ fn final_state() -> i64 {
 
 fn main() {
     let ps = build_piece_set();
-    ps.print();
+//    ps.print();
 
     let state = initial_state();
     let finish = final_state();
-    println!("from {:b} to {:b}", state, finish);
+//    println!("from {:b} to {:b}", state, finish);
 
     ps.solve(state,finish)
 }
