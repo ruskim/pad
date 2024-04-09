@@ -75,27 +75,13 @@ fn build_piece_class(p: Piece, id: i8) ->PieceClass {
         let pf2 = pf1.rotate();
         let pf3 = pf2.rotate();
 
-        pieces.push(p);
-        if !has_piece(&pieces, &p1) {
-            pieces.push(p1)
-        }
-        if !has_piece(&pieces, &p2) {
-            pieces.push(p2)
-        }
-        if !has_piece(&pieces, &p3) {
-            pieces.push(p3)
-        }
-        if !has_piece(&pieces, &pf) {
-            pieces.push(pf)
-        }
-        if !has_piece(&pieces, &pf1) {
-            pieces.push(pf1)
-        }
-        if !has_piece(&pieces, &pf2) {
-            pieces.push(pf2)
-        }
-        if !has_piece(&pieces, &pf3) {
-            pieces.push(pf3)
+        let mut forms = vec![p, p1, p2, p3, pf, pf1, pf2, pf3];
+
+        while forms.len() != 0 {
+            let pp = forms.pop().unwrap();
+            if !has_piece(&pieces, &pp) {
+                pieces.push(pp)
+            }
         }
 
         let mut rng = thread_rng();
@@ -418,8 +404,8 @@ fn initial_state() -> i64 {
     mask = set_bit(mask, 6,6);
 
     //23 Feb
-    //mask = set_bit(mask, 1,0);
-    //mask = set_bit(mask, 1,5);
+    mask = set_bit(mask, 1,0);
+    mask = set_bit(mask, 1,5);
     
     //mask = set_bit(mask, 3,0);
     //mask = set_bit(mask, 6,4);
@@ -428,8 +414,8 @@ fn initial_state() -> i64 {
     //mask = set_bit(mask, 0,2);
 
     //6 Oct
-    mask = set_bit(mask, 3, 1);
-    mask = set_bit(mask, 5, 2);
+//    mask = set_bit(mask, 3, 1);
+//    mask = set_bit(mask, 5, 2);
 
     return mask;
 }
