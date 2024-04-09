@@ -271,60 +271,7 @@ impl PieceSet {
         }
     }
 
-    fn iterate(&self, class: i8, state: i64, finish: i64, solution: &mut Vec<PiecePosition>) -> bool {
-        if (class as usize) >= self.classes.len() {
-            return false;
-        }
-
-        for (i, piece) in self.classes[class as usize].pieces.iter().enumerate() {
-            for x in 0..7 {
-                for y in 0..7 {
-                    let mask = piece.to_bitmask(x, y);
-                    if mask < 0 {
-                        continue;
-                    }
-                    if mask & state != 0 {
-                        continue;
-                    }
-                    let new_state = mask | state;
-                    if new_state == finish {
-//                        println!("Solution found!");
-//                        println!("at {}:{}", x, y);
-//                        piece.print();
-                        solution.push(
-                            PiecePosition{
-                                x: x, 
-                                y: y, 
-                                class: class,
-                                form: i as i8,
-                            });
-                        return true;
-                    }
-                    if self.iterate(class+1, new_state, finish, solution) {
-//                        println!("at {}:{}", x, y);
-//                        piece.print();
-                        solution.push(
-                            PiecePosition{
-                                x: x, 
-                                y: y, 
-                                class: class,
-                                form: i as i8,
-                            });
-                        return true;
-                    }
-                }
-            }
-        }
-
-        return false;
-
-    }
-
-    fn solve(&self, state: i64, finish: i64) {
-        let mut solution: Vec<PiecePosition> = Vec::new();
-
-        if self.iterate(0, state, finish, &mut solution) {
-
+    fn print_solution(&self, solution: &Vec<PiecePosition>) {
             let blocks = [
                 "\u{2588}".black(),
                 "\u{2588}".blue(),
@@ -344,7 +291,7 @@ impl PieceSet {
 
             let mut array_2d = [[0; 7]; 7];
             
-            for p in &solution {
+            for p in solution {
                 let cls = &self.classes[p.class as usize];
                 let f = &cls.pieces[p.form as usize];
                 for (i, v) in f.cells.iter().enumerate() {
@@ -386,10 +333,69 @@ impl PieceSet {
                 println!("");
             }
             println!("");
+
+    }
+
+    fn iterate(&self, class: i8, state: i64, finish: i64, solution: &mut Vec<PiecePosition>) -> bool {
+        if (class as usize) >= self.classes.len() {
+            return false;
+        }
+
+        for (i, piece) in self.classes[class as usize].pieces.iter().enumerate() {
+            for x in 0..7 {
+                for y in 0..7 {
+                    let mask = piece.to_bitmask(x, y);
+                    if mask < 0 {
+                        continue;
+                    }
+                    if mask & state != 0 {
+                        continue;
+                    }
+                    let new_state = mask | state;
+                    if new_state == finish {
+//                        println!("Solution found!");
+//                        println!("at {}:{}", x, y);
+//                        piece.print();
+//                        println!("found");
+//                        return false;
+
+                        solution.push(
+                            PiecePosition{
+                                x: x, 
+                                y: y, 
+                                class: class,
+                                form: i as i8,
+                            });
+                        return true;
+                    }
+                    if self.iterate(class+1, new_state, finish, solution) {
+//                        println!("at {}:{}", x, y);
+//                        piece.print();
+                        solution.push(
+                            PiecePosition{
+                                x: x, 
+                                y: y, 
+                                class: class,
+                                form: i as i8,
+                            });
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+
+    }
+
+    fn solve(&self, state: i64, finish: i64) {
+        let mut solution: Vec<PiecePosition> = Vec::new();
+
+        if self.iterate(0, state, finish, &mut solution) {
+            self.print_solution(&solution);
         } else {
             println!("not found");
         }
-
     }
 }
 
