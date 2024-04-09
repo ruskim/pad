@@ -272,7 +272,7 @@ impl PieceSet {
     }
 
     fn iterate(&self, class: i8, state: i64, finish: i64, solution: &mut Vec<PiecePosition>) -> bool {
-        if (class as usize) > self.classes.len() {
+        if (class as usize) >= self.classes.len() {
             return false;
         }
 
@@ -404,8 +404,8 @@ fn initial_state() -> i64 {
     mask = set_bit(mask, 6,6);
 
     //23 Feb
-    mask = set_bit(mask, 1,0);
-    mask = set_bit(mask, 1,5);
+    //mask = set_bit(mask, 1,0);
+    //mask = set_bit(mask, 1,5);
     
     //mask = set_bit(mask, 3,0);
     //mask = set_bit(mask, 6,4);
@@ -414,8 +414,8 @@ fn initial_state() -> i64 {
     //mask = set_bit(mask, 0,2);
 
     //6 Oct
-//    mask = set_bit(mask, 3, 1);
-//    mask = set_bit(mask, 5, 2);
+    mask = set_bit(mask, 3, 1);
+    mask = set_bit(mask, 5, 2);
 
     return mask;
 }
