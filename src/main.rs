@@ -5,6 +5,7 @@ use rand::thread_rng;
 
 struct Piece {
     cells: Vec<Vec<i8>>,
+    bitmask: i64,
 }
 
 struct PieceClass {
@@ -23,9 +24,33 @@ struct PieceSet {
     classes: Vec<PieceClass>,
 }
 
+fn set_bit(bitmask: i64, x: i8, y: i8) -> i64{
+    let pos = x + y*7;
+    return  bitmask | (1<<pos); 
+}
+
+fn vec_to_bitmask(v: &Vec<Vec<i8>>) -> i64 {
+        let sx = v[0].len();
+        let sy = v.len();
+
+        let mut bitmask: i64 = 0;
+        for i in 0..sy {
+            for j in  0..sx {
+                if v[i][j] != 0 {
+                    bitmask = set_bit(bitmask, j as i8, i as i8);
+                }
+            }
+        }
+
+        return bitmask;
+}
+
 fn build_piece(c: Vec<Vec<i8>>) -> Piece {
+    let bitmask = vec_to_bitmask(&c);
+
     Piece {
         cells: c,
+        bitmask: bitmask,
     }
 }
 
@@ -91,11 +116,6 @@ impl PieceClass {
             r.print();
         }
     }
-}
-
-fn set_bit(bitmask: i64, x: i8, y: i8) -> i64{
-    let pos = x + y*7;
-    return  bitmask | (1<<pos); 
 }
 
 impl Piece {
@@ -172,16 +192,8 @@ impl Piece {
         if sy  + y > 7 {
             return -1;
         }
-        let mut bitmask: i64 = 0;
-        for i in 0..sy {
-            for j in  0..sx {
-                if self.cells[i as usize][j as usize] != 0 {
-                    bitmask = set_bit(bitmask, j+x, y+i);
-                }
-            }
-        }
 
-        return bitmask;
+        return self.bitmask << (7*y + x);
     }
 
 }
@@ -415,6 +427,7 @@ fn initial_state() -> i64 {
     //mask = set_bit(mask, 0,0);
     //mask = set_bit(mask, 0,2);
 
+    //6 Oct
     mask = set_bit(mask, 3, 1);
     mask = set_bit(mask, 5, 2);
 
