@@ -272,71 +272,71 @@ impl PieceSet {
     }
 
     fn print_solution(&self, solution: &Vec<PiecePosition>) {
-            let blocks = [
-                "\u{2588}".black(),
-                "\u{2588}".blue(),
-                "\u{2588}".red(),
-                "\u{2588}".yellow(),
-                "\u{2588}".green(),
-                "\u{2588}".magenta(),
-                "\u{2588}".cyan(),
-                "\u{2588}".white(),
-                "\u{2588}".bright_black(),
-                "\u{2588}".white(),
-                ];
+        let blocks = [
+            "\u{2588}".black(),
+            "\u{2588}".blue(),
+            "\u{2588}".red(),
+            "\u{2588}".yellow(),
+            "\u{2588}".green(),
+            "\u{2588}".magenta(),
+            "\u{2588}".cyan(),
+            "\u{2588}".white(),
+            "\u{2588}".bright_black(),
+            "\u{2588}".white(),
+            ];
 
-            let months = [
-                "Jan", "Feb", "Mar", "Apr", "May", "Jun", 
-                "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        let months = [
+            "Jan", "Feb", "Mar", "Apr", "May", "Jun", 
+            "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-            let mut array_2d = [[0; 7]; 7];
-            
-            for p in solution {
-                let cls = &self.classes[p.class as usize];
-                let f = &cls.pieces[p.form as usize];
-                for (i, v) in f.cells.iter().enumerate() {
-                    for (j, c) in v.iter().enumerate() {
-                        if *c != 0 {
-                            array_2d[i+(p.y as usize)][j+(p.x as usize)] = cls.id;
-                        }
+        let mut array_2d = [[0; 7]; 7];
+
+        for p in solution {
+            let cls = &self.classes[p.class as usize];
+            let f = &cls.pieces[p.form as usize];
+            for (i, v) in f.cells.iter().enumerate() {
+                for (j, c) in v.iter().enumerate() {
+                    if *c != 0 {
+                        array_2d[i+(p.y as usize)][j+(p.x as usize)] = cls.id;
                     }
                 }
+            }
 //                println!("position: c:{}, p:{}, x:{}, y:{}", p.class, p.form, p.x, p.y);
-            }
+        }
 
-            println!("");
-            for i in 0..array_2d.len() {
-                for j in 0..array_2d[i].len() {
-                    let c = array_2d[i][j];
-                    if c == 0 {
-                        if (i == 0 || i == 1) && j < 6 {
-                            print!("{}", months[6*i+j as usize]);
-                            continue;
-                        }
-                        if ((i >= 2) && (i <= 5)) || ((i == 6) && (j <= 2)) {
-                            let d = (i-2)*7 + j + 1;
-                            if d < 10 {
-                                print!("{:>2} ", d);
-
-                            } else {
-                                print!("{:>3}", d);
-                            }
-                            continue;
-                        }
-                        //let p = "\u{25CD}";
-                        //print!(" {} ", p);
-                        //continue;
+        println!("");
+        for i in 0..array_2d.len() {
+            for j in 0..array_2d[i].len() {
+                let c = array_2d[i][j];
+                if c == 0 {
+                    if (i == 0 || i == 1) && j < 6 {
+                        print!("{}", months[6*i+j as usize]);
+                        continue;
                     }
-                    let b = &blocks[c as usize];
-                    print!("{}{}{}", b, b, b);
+                    if ((i >= 2) && (i <= 5)) || ((i == 6) && (j <= 2)) {
+                        let d = (i-2)*7 + j + 1;
+                        if d < 10 {
+                            print!("{:>2} ", d);
+
+                        } else {
+                            print!("{:>3}", d);
+                        }
+                        continue;
+                    }
+                    //let p = "\u{25CD}";
+                    //print!(" {} ", p);
+                    //continue;
                 }
-                println!("");
+                let b = &blocks[c as usize];
+                print!("{}{}{}", b, b, b);
             }
             println!("");
+        }
+        println!("");
 
     }
 
-    fn iterate(&self, class: i8, state: i64, finish: i64, solution: &mut Vec<PiecePosition>) -> bool {
+    fn iterate(&self, class: i8, state: i64, finish: i64, solution: &mut Vec<PiecePosition>, find_all: bool) -> bool {
         if (class as usize) >= self.classes.len() {
             return false;
         }
@@ -353,33 +353,29 @@ impl PieceSet {
                     }
                     let new_state = mask | state;
                     if new_state == finish {
-//                        println!("Solution found!");
-//                        println!("at {}:{}", x, y);
-//                        piece.print();
-//                        println!("found");
+                        solution.push(
+                            PiecePosition{
+                                x: x, 
+                                y: y, 
+                                class: class,
+                                form: i as i8,
+                            });
+                        self.print_solution(solution);
+                        solution.pop();
+                        return true;
 //                        return false;
-
-                        solution.push(
-                            PiecePosition{
-                                x: x, 
-                                y: y, 
-                                class: class,
-                                form: i as i8,
-                            });
-                        return true;
                     }
-                    if self.iterate(class+1, new_state, finish, solution) {
-//                        println!("at {}:{}", x, y);
-//                        piece.print();
-                        solution.push(
-                            PiecePosition{
-                                x: x, 
-                                y: y, 
-                                class: class,
-                                form: i as i8,
-                            });
-                        return true;
+                    solution.push(
+                        PiecePosition{
+                            x: x, 
+                            y: y, 
+                            class: class,
+                            form: i as i8,
+                        });
+                    if self.iterate(class+1, new_state, finish, solution, find_all) {
+                        return !find_all;
                     }
+                    solution.pop();
                 }
             }
         }
@@ -391,8 +387,9 @@ impl PieceSet {
     fn solve(&self, state: i64, finish: i64) {
         let mut solution: Vec<PiecePosition> = Vec::new();
 
-        if self.iterate(0, state, finish, &mut solution) {
-            self.print_solution(&solution);
+        if self.iterate(0, state, finish, &mut solution, true) {
+            //self.print_solution(&solution);
+            println!("found!");
         } else {
             println!("not found");
         }
