@@ -84,6 +84,7 @@ fn build_piece_class(p: Piece, id: i8) ->PieceClass {
 }
 
 impl PieceClass {
+    #[allow(dead_code)]
     fn print(&self) {
         println!("PieceClass: {}", self.id);
         for r in &self.pieces {
@@ -98,6 +99,7 @@ fn set_bit(bitmask: i64, x: i8, y: i8) -> i64{
 }
 
 impl Piece {
+    #[allow(dead_code)]
     fn print(&self) {
         for r in &self.cells {
             for c in r {
@@ -264,6 +266,7 @@ fn build_piece_set() -> PieceSet {
 }
 
 impl PieceSet {
+    #[allow(dead_code)]
     fn print(&self) {
         for pc in &self.classes {
             pc.print();
@@ -332,9 +335,9 @@ impl PieceSet {
                 "\u{2588}".green(),
                 "\u{2588}".magenta(),
                 "\u{2588}".cyan(),
-                "\u{2588}".purple(),
+                "\u{2588}".white(),
                 "\u{2588}".bright_black(),
-                "\u{2588}".bright_blue(),
+                "\u{2588}".white(),
                 ];
 
             let months = [
@@ -403,14 +406,17 @@ fn initial_state() -> i64 {
     mask = set_bit(mask, 6,6);
 
     //23 Feb
-    mask = set_bit(mask, 1,0);
-    mask = set_bit(mask, 1,5);
+    //mask = set_bit(mask, 1,0);
+    //mask = set_bit(mask, 1,5);
     
     //mask = set_bit(mask, 3,0);
     //mask = set_bit(mask, 6,4);
     
     //mask = set_bit(mask, 0,0);
     //mask = set_bit(mask, 0,2);
+
+    mask = set_bit(mask, 3, 1);
+    mask = set_bit(mask, 5, 2);
 
     return mask;
 }
@@ -422,6 +428,7 @@ fn final_state() -> i64 {
 
 fn main() {
     let ps = build_piece_set();
+
 //    ps.print();
 
     let state = initial_state();
