@@ -3,6 +3,8 @@ use colored::Colorize;
 use rand::seq::SliceRandom;
 use rand::thread_rng;
 
+static mut CNT: u32=0;
+
 struct Piece {
     cells: Vec<Vec<i8>>,
     bitmask: i64,
@@ -272,6 +274,11 @@ impl PieceSet {
     }
 
     fn print_solution(&self, solution: &Vec<PiecePosition>) {
+        unsafe {
+            CNT += 1;
+            println!("Count: {}", CNT);
+        }
+
         let blocks = [
             "\u{2588}".black(),
             "\u{2588}".blue(),
@@ -290,7 +297,7 @@ impl PieceSet {
             "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
         let mut array_2d = [[0; 7]; 7];
-
+        
         for p in solution {
             let cls = &self.classes[p.class as usize];
             let f = &cls.pieces[p.form as usize];
@@ -362,7 +369,7 @@ impl PieceSet {
                             });
                         self.print_solution(solution);
                         solution.pop();
-                        return true;
+                        return !find_all;
 //                        return false;
                     }
                     solution.push(
@@ -373,6 +380,7 @@ impl PieceSet {
                             form: i as i8,
                         });
                     if self.iterate(class+1, new_state, finish, solution, find_all) {
+                        solution.pop();
                         return !find_all;
                     }
                     solution.pop();
@@ -389,9 +397,9 @@ impl PieceSet {
 
         if self.iterate(0, state, finish, &mut solution, true) {
             //self.print_solution(&solution);
-            println!("found!");
+            println!("found! {}", solution.len());
         } else {
-            println!("not found");
+            println!("not found {}", solution.len());
         }
     }
 }
@@ -417,8 +425,12 @@ fn initial_state() -> i64 {
     //mask = set_bit(mask, 0,2);
 
     //6 Oct
-    mask = set_bit(mask, 3, 1);
-    mask = set_bit(mask, 5, 2);
+    //mask = set_bit(mask, 3, 1);
+    //mask = set_bit(mask, 5, 2);
+
+    //Jan 25
+    mask = set_bit(mask, 0,0);
+    mask = set_bit(mask, 3,5);
 
     return mask;
 }
