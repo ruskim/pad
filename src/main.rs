@@ -3,8 +3,6 @@ use colored::Colorize;
 use rand::seq::SliceRandom;
 use rand::thread_rng;
 
-static mut CNT: u32=0;
-
 struct Piece {
     cells: Vec<Vec<i8>>,
     bitmask: i64,
@@ -15,11 +13,22 @@ struct PieceClass {
     id: i8,
 }
 
+#[derive(Clone)]
 struct PiecePosition {
     x: i8,
     y: i8,
     class: i8,
     form: i8,
+}
+
+struct SolutionCollector {
+    cnt: i32,
+}
+
+fn build_solution_collector() -> SolutionCollector {
+    SolutionCollector{
+        cnt: 0,
+    }
 }
 
 struct PieceSet {
@@ -262,7 +271,6 @@ fn build_piece_set() -> PieceSet {
     PieceSet {
         classes: classes,
     }
-
 }
 
 impl PieceSet {
@@ -273,12 +281,10 @@ impl PieceSet {
         }
     }
 
-    fn print_solution(&self, solution: &Vec<PiecePosition>) {
-        unsafe {
-            CNT += 1;
-            println!("Count: {}", CNT);
-        }
+    fn print_solution(&self, solution: &Vec<PiecePosition>, solc: &mut SolutionCollector) {
+        solc.cnt += 1;
 
+        println!("{}", solc.cnt);
         let blocks = [
             "\u{2588}".black(),
             "\u{2588}".blue(),
@@ -308,10 +314,8 @@ impl PieceSet {
                     }
                 }
             }
-//                println!("position: c:{}, p:{}, x:{}, y:{}", p.class, p.form, p.x, p.y);
         }
 
-        println!("");
         for i in 0..array_2d.len() {
             for j in 0..array_2d[i].len() {
                 let c = array_2d[i][j];
@@ -343,7 +347,7 @@ impl PieceSet {
 
     }
 
-    fn iterate(&self, class: i8, state: i64, finish: i64, solution: &mut Vec<PiecePosition>, find_all: bool) -> bool {
+    fn iterate(&self, class: i8, state: i64, finish: i64, solution: &mut Vec<PiecePosition>, find_all: bool, solc: &mut SolutionCollector) -> bool {
         if (class as usize) >= self.classes.len() {
             return false;
         }
@@ -360,30 +364,24 @@ impl PieceSet {
                     }
                     let new_state = mask | state;
                     if new_state == finish {
-                        solution.push(
-                            PiecePosition{
-                                x: x, 
-                                y: y, 
-                                class: class,
-                                form: i as i8,
-                            });
-                        self.print_solution(solution);
-                        solution.pop();
-                        return !find_all;
-//                        return false;
-                    }
-                    solution.push(
-                        PiecePosition{
-                            x: x, 
-                            y: y, 
-                            class: class,
-                            form: i as i8,
-                        });
-                    if self.iterate(class+1, new_state, finish, solution, find_all) {
-                        solution.pop();
+                        let s = &mut solution[class as usize];
+                        s.x = x;
+                        s.y = y;
+                        s.class = class;
+                        s.form = i as i8;
+                        self.print_solution(solution, solc);
                         return !find_all;
                     }
-                    solution.pop();
+                    let s = &mut solution[class as usize];
+                    s.x = x;
+                    s.y = y;
+                    s.class = class;
+                    s.form = i as i8;
+
+                    let ret = self.iterate(class+1, new_state, finish, solution, find_all, solc);
+                    if ret {
+                        return true;
+                    }
                 }
             }
         }
@@ -392,19 +390,14 @@ impl PieceSet {
 
     }
 
-    fn solve(&self, state: i64, finish: i64) {
-        let mut solution: Vec<PiecePosition> = Vec::new();
+    fn solve(&self, state: i64, finish: i64, find_all: bool, solc: &mut SolutionCollector) {
+        let mut solution = vec![PiecePosition{x:0, y:0, class:0, form:0}; self.classes.len()];
 
-        if self.iterate(0, state, finish, &mut solution, true) {
-            //self.print_solution(&solution);
-            println!("found! {}", solution.len());
-        } else {
-            println!("not found {}", solution.len());
-        }
+        self.iterate(0, state, finish, &mut solution, find_all, solc);
     }
 }
 
-fn initial_state() -> i64 {
+fn initial_state(day: i8, month: i8) -> i64 {
     let mut mask: i64 = 0;
     mask = set_bit(mask, 6, 0);
     mask = set_bit(mask, 6, 1);
@@ -414,23 +407,8 @@ fn initial_state() -> i64 {
     mask = set_bit(mask, 5,6);
     mask = set_bit(mask, 6,6);
 
-    //23 Feb
-    //mask = set_bit(mask, 1,0);
-    //mask = set_bit(mask, 1,5);
-    
-    //mask = set_bit(mask, 3,0);
-    //mask = set_bit(mask, 6,4);
-    
-    //mask = set_bit(mask, 0,0);
-    //mask = set_bit(mask, 0,2);
-
-    //6 Oct
-    //mask = set_bit(mask, 3, 1);
-    //mask = set_bit(mask, 5, 2);
-
-    //Jan 25
-    mask = set_bit(mask, 0,0);
-    mask = set_bit(mask, 3,5);
+    mask = set_bit(mask, (month-1)%6, (month-1)/6);
+    mask = set_bit(mask, (day-1)%7, (day-1)/7+2);
 
     return mask;
 }
@@ -439,15 +417,16 @@ fn final_state() -> i64 {
     return i64::pow(2, 49) - 1;
 }
 
-
 fn main() {
     let ps = build_piece_set();
+    let mut solc = build_solution_collector();
 
 //    ps.print();
 
-    let state = initial_state();
+    let state = initial_state(21, 4);
     let finish = final_state();
 //    println!("from {:b} to {:b}", state, finish);
 
-    ps.solve(state,finish)
+    ps.solve(state,finish, false, &mut solc);
+    println!("found {} solutions", solc.cnt);
 }
