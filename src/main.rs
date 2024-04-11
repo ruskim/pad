@@ -26,34 +26,32 @@ struct SolutionCollector {
 }
 
 fn build_solution_collector() -> SolutionCollector {
-    SolutionCollector{
-        cnt: 0,
-    }
+    SolutionCollector { cnt: 0 }
 }
 
 struct PieceSet {
     classes: Vec<PieceClass>,
 }
 
-fn set_bit(bitmask: i64, x: i8, y: i8) -> i64{
-    let pos = x + y*7;
-    return  bitmask | (1<<pos); 
+fn set_bit(bitmask: i64, x: i8, y: i8) -> i64 {
+    let pos = x + y * 7;
+    return bitmask | (1 << pos);
 }
 
 fn vec_to_bitmask(v: &Vec<Vec<i8>>) -> i64 {
-        let sx = v[0].len();
-        let sy = v.len();
+    let sx = v[0].len();
+    let sy = v.len();
 
-        let mut bitmask: i64 = 0;
-        for i in 0..sy {
-            for j in  0..sx {
-                if v[i][j] != 0 {
-                    bitmask = set_bit(bitmask, j as i8, i as i8);
-                }
+    let mut bitmask: i64 = 0;
+    for i in 0..sy {
+        for j in 0..sx {
+            if v[i][j] != 0 {
+                bitmask = set_bit(bitmask, j as i8, i as i8);
             }
         }
+    }
 
-        return bitmask;
+    return bitmask;
 }
 
 fn build_piece(c: Vec<Vec<i8>>) -> Piece {
@@ -65,7 +63,7 @@ fn build_piece(c: Vec<Vec<i8>>) -> Piece {
     }
 }
 
-fn has_piece( ps: &Vec<Piece>, p: &Piece) -> bool {
+fn has_piece(ps: &Vec<Piece>, p: &Piece) -> bool {
     for i in ps {
         if i.equal(p) {
             return true;
@@ -74,35 +72,34 @@ fn has_piece( ps: &Vec<Piece>, p: &Piece) -> bool {
     false
 }
 
-fn build_piece_class(p: Piece, id: i8) ->PieceClass {
-        let mut pieces: Vec<Piece> =  Vec::new();
+fn build_piece_class(p: Piece, id: i8) -> PieceClass {
+    let mut pieces: Vec<Piece> = Vec::new();
 
-        let p1 = p.rotate();
-        let p2 = p1.rotate();
-        let p3 = p2.rotate();
+    let p1 = p.rotate();
+    let p2 = p1.rotate();
+    let p3 = p2.rotate();
 
-        let pf = p.flip();
-        let pf1 = pf.rotate();
-        let pf2 = pf1.rotate();
-        let pf3 = pf2.rotate();
+    let pf = p.flip();
+    let pf1 = pf.rotate();
+    let pf2 = pf1.rotate();
+    let pf3 = pf2.rotate();
 
-        let mut forms = vec![p, p1, p2, p3, pf, pf1, pf2, pf3];
+    let mut forms = vec![p, p1, p2, p3, pf, pf1, pf2, pf3];
 
-        while forms.len() != 0 {
-            let pp = forms.pop().unwrap();
-            if !has_piece(&pieces, &pp) {
-                pieces.push(pp)
-            }
+    while forms.len() != 0 {
+        let pp = forms.pop().unwrap();
+        if !has_piece(&pieces, &pp) {
+            pieces.push(pp)
         }
+    }
 
-        let mut rng = thread_rng();
-        pieces.shuffle(&mut rng);
+    let mut rng = thread_rng();
+    pieces.shuffle(&mut rng);
 
-        PieceClass {
-            pieces: pieces,
-            id: id,
-        }
-
+    PieceClass {
+        pieces: pieces,
+        id: id,
+    }
 }
 
 impl PieceClass {
@@ -126,10 +123,10 @@ impl Piece {
         }
         println!("");
     }
-    
+
     fn rotate(&self) -> Piece {
         let mut i = 0;
-        let mut cells: Vec<Vec<i8>> =  Vec::new();
+        let mut cells: Vec<Vec<i8>> = Vec::new();
         for r in &self.cells {
             let mut j = 0;
             for c in r {
@@ -140,7 +137,7 @@ impl Piece {
                 j += 1;
             }
             i += 1;
-        };
+        }
 
         for i in 0..cells.len() {
             cells[i].reverse();
@@ -150,7 +147,7 @@ impl Piece {
     }
 
     fn flip(&self) -> Piece {
-        let mut cells: Vec<Vec<i8>> =  Vec::new();
+        let mut cells: Vec<Vec<i8>> = Vec::new();
 
         for i in (0..self.cells.len()).rev() {
             cells.push(self.cells[i].clone());
@@ -178,7 +175,6 @@ impl Piece {
     }
 
     fn to_bitmask(&self, x: i8, y: i8) -> i64 {
-
         let sx = self.cells[0].len() as i8;
         let sy = self.cells.len() as i8;
 
@@ -186,91 +182,72 @@ impl Piece {
             return -1;
         }
 
-        if sy  + y > 7 {
+        if sy + y > 7 {
             return -1;
         }
 
-        return self.bitmask << (7*y + x);
+        return self.bitmask << (7 * y + x);
     }
-
 }
 
 fn build_piece_set() -> PieceSet {
-    let mut classes: Vec<PieceClass> =  Vec::new();
+    let mut classes: Vec<PieceClass> = Vec::new();
 
-    let mut p = build_piece(
-        vec![
-            vec![1,1],
-            vec![1,0],
-            vec![1,0],
-            vec![1,0]
-            ]);
+    let mut p = build_piece(vec![
+        vec![1, 1],
+        vec![1, 0],
+        vec![1, 0],
+        vec![1, 0]]);
     classes.push(build_piece_class(p, 2));
 
-    p = build_piece(
-        vec![
-            vec![1,0],
-            vec![1,1],
-            vec![1,0],
-            vec![1,0]
-            ]);
+    p = build_piece(vec![
+        vec![1, 0],
+        vec![1, 1],
+        vec![1, 0],
+        vec![1, 0]]);
     classes.push(build_piece_class(p, 1));
-    
-    p = build_piece(
-        vec![
-            vec![1,1,0],
-            vec![0,1,0],
-            vec![0,1,1],
-            ]);
+
+    p = build_piece(vec![
+        vec![1, 1, 0],
+        vec![0, 1, 0],
+        vec![0, 1, 1]]);
     classes.push(build_piece_class(p, 4));
-    
-    p = build_piece(
-        vec![
-            vec![1,1],
-            vec![1,0],
-            vec![1,1],
-            ]);
+
+    p = build_piece(vec![
+        vec![1, 1],
+        vec![1, 0],
+        vec![1, 1]]);
     classes.push(build_piece_class(p, 3));
 
-    p = build_piece(
-        vec![
-            vec![1,1],
-            vec![1,1],
-            vec![1,1],
-            ]);
+    p = build_piece(vec![
+        vec![1, 1],
+        vec![1, 1],
+        vec![1, 1]]);
     classes.push(build_piece_class(p, 5));
-    
-    p = build_piece(
-        vec![
-            vec![1,0,0],
-            vec![1,0,0],
-            vec![1,1,1],
-            ]);
+
+    p = build_piece(vec![
+        vec![1, 0, 0],
+        vec![1, 0, 0],
+        vec![1, 1, 1]]);
     classes.push(build_piece_class(p, 6));
-    
-    p = build_piece(
-        vec![
-            vec![1,0],
-            vec![1,1],
-            vec![0,1],
-            vec![0,1]
-            ]);
+
+    p = build_piece(vec![
+        vec![1, 0],
+        vec![1, 1],
+        vec![0, 1],
+        vec![0, 1]]);
     classes.push(build_piece_class(p, 7));
-    
-    p = build_piece(
-        vec![
-            vec![1,0],
-            vec![1,1],
-            vec![1,1],
-            ]);
+
+    p = build_piece(vec![
+        vec![1, 0],
+        vec![1, 1],
+        vec![1, 1]]);
     classes.push(build_piece_class(p, 8));
 
     let mut rng = thread_rng();
     classes.shuffle(&mut rng);
 
-    PieceSet {
-        classes: classes,
-    }
+    PieceSet { classes: classes }
 }
 
 impl PieceSet {
@@ -281,8 +258,12 @@ impl PieceSet {
         }
     }
 
+    #[allow(unreachable_code)]
+    #[allow(unused_variables)]
     fn print_solution(&self, solution: &Vec<PiecePosition>, solc: &mut SolutionCollector) {
         solc.cnt += 1;
+
+        return;
 
         println!("{}", solc.cnt);
         let blocks = [
@@ -296,21 +277,22 @@ impl PieceSet {
             "\u{2588}".white(),
             "\u{2588}".bright_black(),
             "\u{2588}".white(),
-            ];
+        ];
 
         let months = [
-            "Jan", "Feb", "Mar", "Apr", "May", "Jun", 
-            "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+            "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+        ];
 
         let mut array_2d = [[0; 7]; 7];
-        
+
         for p in solution {
             let cls = &self.classes[p.class as usize];
             let f = &cls.pieces[p.form as usize];
             for (i, v) in f.cells.iter().enumerate() {
                 for (j, c) in v.iter().enumerate() {
                     if *c != 0 {
-                        array_2d[i+(p.y as usize)][j+(p.x as usize)] = cls.id;
+                        array_2d[i + (p.y as usize)][j + (p.x as usize)] = cls.id;
                     }
                 }
             }
@@ -321,14 +303,13 @@ impl PieceSet {
                 let c = array_2d[i][j];
                 if c == 0 {
                     if (i == 0 || i == 1) && j < 6 {
-                        print!("{}", months[6*i+j as usize]);
+                        print!("{}", months[6 * i + j as usize]);
                         continue;
                     }
                     if ((i >= 2) && (i <= 5)) || ((i == 6) && (j <= 2)) {
-                        let d = (i-2)*7 + j + 1;
+                        let d = (i - 2) * 7 + j + 1;
                         if d < 10 {
                             print!("{:>2} ", d);
-
                         } else {
                             print!("{:>3}", d);
                         }
@@ -344,10 +325,17 @@ impl PieceSet {
             println!("");
         }
         println!("");
-
     }
 
-    fn iterate(&self, class: i8, state: i64, finish: i64, solution: &mut Vec<PiecePosition>, find_all: bool, solc: &mut SolutionCollector) -> bool {
+    fn iterate(
+        &self,
+        class: i8,
+        state: i64,
+        finish: i64,
+        solution: &mut Vec<PiecePosition>,
+        find_all: bool,
+        solc: &mut SolutionCollector,
+    ) -> bool {
         if (class as usize) >= self.classes.len() {
             return false;
         }
@@ -378,7 +366,7 @@ impl PieceSet {
                     s.class = class;
                     s.form = i as i8;
 
-                    let ret = self.iterate(class+1, new_state, finish, solution, find_all, solc);
+                    let ret = self.iterate(class + 1, new_state, finish, solution, find_all, solc);
                     if ret {
                         return true;
                     }
@@ -387,13 +375,31 @@ impl PieceSet {
         }
 
         return false;
-
     }
 
     fn solve(&self, state: i64, finish: i64, find_all: bool, solc: &mut SolutionCollector) {
-        let mut solution = vec![PiecePosition{x:0, y:0, class:0, form:0}; self.classes.len()];
+        let mut solution = vec![
+            PiecePosition {
+                x: 0,
+                y: 0,
+                class: 0,
+                form: 0
+            };
+            self.classes.len()
+        ];
 
         self.iterate(0, state, finish, &mut solution, find_all, solc);
+    }
+
+    fn solve_all(&self, finish: i64, solc: &mut SolutionCollector) {
+        let days = vec![31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+        for (m, dn) in  days.iter().enumerate() {
+            for d in 0..*dn {
+                let state = initial_state((d+1) as i8, (m+1) as i8);
+                self.solve(state, finish, true, solc);
+                println!("{}.{}: {}", d+1, m+1, solc.cnt);
+            }
+        }
     }
 }
 
@@ -402,13 +408,13 @@ fn initial_state(day: i8, month: i8) -> i64 {
     mask = set_bit(mask, 6, 0);
     mask = set_bit(mask, 6, 1);
 
-    mask = set_bit(mask, 3,6);
-    mask = set_bit(mask, 4,6);
-    mask = set_bit(mask, 5,6);
-    mask = set_bit(mask, 6,6);
+    mask = set_bit(mask, 3, 6);
+    mask = set_bit(mask, 4, 6);
+    mask = set_bit(mask, 5, 6);
+    mask = set_bit(mask, 6, 6);
 
-    mask = set_bit(mask, (month-1)%6, (month-1)/6);
-    mask = set_bit(mask, (day-1)%7, (day-1)/7+2);
+    mask = set_bit(mask, (month - 1) % 6, (month - 1) / 6);
+    mask = set_bit(mask, (day - 1) % 7, (day - 1) / 7 + 2);
 
     return mask;
 }
@@ -421,12 +427,13 @@ fn main() {
     let ps = build_piece_set();
     let mut solc = build_solution_collector();
 
-//    ps.print();
+    //    ps.print();
 
-    let state = initial_state(21, 4);
     let finish = final_state();
-//    println!("from {:b} to {:b}", state, finish);
+    //    println!("from {:b} to {:b}", state, finish);
 
-    ps.solve(state,finish, false, &mut solc);
+    //let state = initial_state(6, 10);
+    //ps.solve(state, finish, true, &mut solc);
+    ps.solve_all(finish, &mut solc);
     println!("found {} solutions", solc.cnt);
 }
