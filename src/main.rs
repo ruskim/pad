@@ -263,7 +263,7 @@ impl PieceSet {
     fn print_solution(&self, solution: &Vec<PiecePosition>, solc: &mut SolutionCollector) {
         solc.cnt += 1;
 
-        return;
+//        return;
 
         println!("{}", solc.cnt);
         let blocks = [
@@ -315,9 +315,9 @@ impl PieceSet {
                         }
                         continue;
                     }
-                    //let p = "\u{25CD}";
-                    //print!(" {} ", p);
-                    //continue;
+                    let p = "\u{25CD}";
+                    print!(" {} ", p);
+                    continue;
                 }
                 let b = &blocks[c as usize];
                 print!("{}{}{}", b, b, b);
@@ -432,8 +432,8 @@ fn main() {
     let finish = final_state();
     //    println!("from {:b} to {:b}", state, finish);
 
-    //let state = initial_state(6, 10);
-    //ps.solve(state, finish, true, &mut solc);
-    ps.solve_all(finish, &mut solc);
+    let state = initial_state(15, 4);
+    ps.solve(state, finish, true, &mut solc);
+    //ps.solve_all(finish, &mut solc);
     println!("found {} solutions", solc.cnt);
 }
